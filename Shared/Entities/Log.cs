@@ -8,6 +8,7 @@ public static class Log
 
     private static readonly string lineSeperator = "===========================================================================";
     private static readonly string allocationPath = "App_Data\\Logs";
+
     private static Dictionary<LogType, int> logTypeIndices = new Dictionary<LogType, int>
         {
             { LogType.Information, 1 },
