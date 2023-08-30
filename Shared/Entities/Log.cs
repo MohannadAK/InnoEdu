@@ -1,6 +1,4 @@
-﻿using InnoEdu.Shared.Entities;
-
-namespace Logger.Shared;
+﻿namespace Logger.Shared;
 
 public static class Log
 {
@@ -10,14 +8,33 @@ public static class Log
 
     private static readonly string lineSeperator = "===========================================================================";
     private static readonly string allocationPath = "App_Data\\Logs";
+    private static Dictionary<LogType, int> logTypeIndices = new Dictionary<LogType, int>
+        {
+            { LogType.Information, 1 },
+            { LogType.Debug, 1 },
+            { LogType.Error, 1 },
+            { LogType.Critical, 1 }
+        };
 
-    public static async Task WriteInformation(string data) => await WriteInformationLog(LogType.Information, data);
+    public static async Task WriteInformation(string data)
+    {
+        await WriteLog(LogType.Information, data);
+    }
 
-    public static async Task WriteDebug(string data) => await WriteDebugLog(LogType.Debug, data);
+    public static async Task WriteDebug(string data)
+    {
+        await WriteLog(LogType.Debug, data);
+    }
 
-    public static async Task WriteError(string data) => await WriteErrorLog(LogType.Error, data);
+    public static async Task WriteError(string data)
+    {
+        await WriteLog(LogType.Error, data);
+    }
 
-    public static async Task WriteCritical(string data) => await WriteCriticalLog(LogType.Critical, data);
+    public static async Task WriteCritical(string data)
+    {
+        await WriteLog(LogType.Critical, data);
+    }
 
     public static async Task<string> ReadAllLogs() => await ReadAllLogTypes();
 
@@ -29,44 +46,37 @@ public static class Log
 
     public static async Task<string> ReadCriticalLogs() => await ReadLogsFromDirectoryAsync("Critical");
 
-    private static async Task WriteInformationLog(LogType logType, string data)
+    private static async Task WriteLog(LogType logType, string data)
     {
-        if (!Directory.Exists($"{allocationPath}\\Information"))
-            _ = Directory.CreateDirectory($"{allocationPath}\\Information");
+        string logDirectory = $"{allocationPath}\\{logType}";
+        if (!Directory.Exists(logDirectory))
+        {
+            Directory.CreateDirectory(logDirectory);
+        }
 
-        string logPath = $"{allocationPath}\\Information\\{logType}Logs.txt";
+        string logFilePath = $"{logDirectory}\\{logType}Logs_{logTypeIndices[logType]}.txt";
+
+        long fileSize = GetFileSize(logFilePath);
+
+        if (fileSize >= 10 * 1024) // 10KB
+        {
+            logTypeIndices[logType]++;
+            logFilePath = $"{logDirectory}\\{logType}Logs_{logTypeIndices[logType]}.txt";
+        }
+
         string content = $"Log date: {DateTime.Now}{Environment.NewLine}Log: {data}{Environment.NewLine}{lineSeperator}{Environment.NewLine}";
-        await File.AppendAllTextAsync(logPath, content);
+
+        await File.AppendAllTextAsync(logFilePath, content);
     }
 
-    private static async Task WriteDebugLog(LogType logType, string data)
+    private static long GetFileSize(string filePath)
     {
-        if (!Directory.Exists($"{allocationPath}\\Debug"))
-            _ = Directory.CreateDirectory($"{allocationPath}\\Debug");
-
-        string logPath = $"{allocationPath}\\Debug\\{logType}Logs.txt";
-        string content = $"Log date: {DateTime.Now}{Environment.NewLine}Log: {data}{Environment.NewLine}{lineSeperator}{Environment.NewLine}";
-        await File.AppendAllTextAsync(logPath, content);
-    }
-
-    private static async Task WriteErrorLog(LogType logType, string data)
-    {
-        if (!Directory.Exists($"{allocationPath}\\Error"))
-            _ = Directory.CreateDirectory($"{allocationPath}\\Error");
-
-        string logPath = $"{allocationPath}\\Error\\{logType}Logs.txt";
-        string content = $"Log date: {DateTime.Now}{Environment.NewLine}Log: {data}{Environment.NewLine}{lineSeperator}{Environment.NewLine}";
-        await File.AppendAllTextAsync(logPath, content);
-    }
-
-    private static async Task WriteCriticalLog(LogType logType, string data)
-    {
-        if (!Directory.Exists($"{allocationPath}\\Critical"))
-            _ = Directory.CreateDirectory($"{allocationPath}\\Critical");
-
-        string logPath = $"{allocationPath}\\Critical\\{logType}Logs.txt";
-        string content = $"Log date: {DateTime.Now}{Environment.NewLine}Log: {data}{Environment.NewLine}{lineSeperator}{Environment.NewLine}";
-        await File.AppendAllTextAsync(logPath, content);
+        if (File.Exists(filePath))
+        {
+            FileInfo fileInfo = new FileInfo(filePath);
+            return fileInfo.Length;
+        }
+        return 0;
     }
 
     private static async Task<string> ReadAllLogTypes()
@@ -90,7 +100,7 @@ public static class Log
         try
         {
             string logDirectory = $"{allocationPath}\\{subDirectory}";
-            string[] logFiles = Directory.GetFiles(logDirectory, "*Logs.txt");
+            string[] logFiles = Directory.GetFiles(logDirectory, "*Logs*.txt");
 
             StringBuilder allLogContent = new();
 
