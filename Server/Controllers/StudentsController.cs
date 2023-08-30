@@ -1,5 +1,4 @@
-﻿
-namespace ThirdApp.Server;
+﻿namespace ThirdApp.Server;
 
 [Route("api/[controller]")]
 [ApiController]

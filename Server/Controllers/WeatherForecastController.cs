@@ -1,5 +1,4 @@
 using InnoEdu.Shared;
-using Microsoft.AspNetCore.Mvc;
 
 namespace InnoEdu.Server.Controllers
 {
