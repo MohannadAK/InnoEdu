@@ -1,4 +1,4 @@
-﻿namespace Logger.Shared;
+﻿namespace InnoEdu.Shared.Entities;
 
 public enum LogType
 {

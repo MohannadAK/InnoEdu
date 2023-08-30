@@ -1,0 +1,43 @@
+﻿@namespace ThirdApp.Client
+
+@page "/students"
+
+@inject HttpClient _httpClient
+
+<h3>Students</h3>
+
+<EditForm Model="student" OnSubmit="OnFormSubmit">
+    <div class="mb-2">
+        <InputText @bind-Value="student.Name" placeholder="Enter Name"></InputText>
+    </div>
+    <div class="mb-2">
+        <InputNumber @bind-Value="student.Age" placeholder="Enter Age"></InputNumber>
+    </div>
+    <div class="mb-2">
+        <InputText @bind-Value="student.Mobile" placeholder="Enter Mobile"></InputText>
+    </div>
+
+    <button type="submit">Save</button>
+</EditForm>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">@nameof(Student.Id)</th>
+            <th scope="col">@nameof(Student.Name)</th>
+            <th scope="col">@nameof(Student.Age)</th>
+            <th scope="col">@nameof(Student.Mobile)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Student student in students ?? new())
+        {
+            <tr>
+                <td>@student.Id</td>
+                <td>@student.Name</td>
+                <td>@student.Age</td>
+                <td>@student.Mobile</td>
+            </tr>
+        }
+    </tbody>
+</table>

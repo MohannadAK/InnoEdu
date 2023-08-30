@@ -1,4 +1,4 @@
 ﻿global using Logger.Shared;
 global using Microsoft.AspNetCore.Mvc;
 
-global using System.Text;
+global using System.Text.Json;

@@ -1,4 +1,6 @@
-﻿namespace Logger.Shared;
+﻿using InnoEdu.Shared.Entities;
+
+namespace Logger.Shared;
 
 public static class Log
 {

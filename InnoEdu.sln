@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34018.315
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoEdu.Server", "Server\InnoEdu.Server.csproj", "{0D2A8374-DD7B-47D5-A90E-44F3E2F9995F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoEdu.Server", "Server\InnoEdu.Server.csproj", "{0D2A8374-DD7B-47D5-A90E-44F3E2F9995F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoEdu.Client", "Client\InnoEdu.Client.csproj", "{0CEFFCFC-D083-4EED-BC5F-148A954DC954}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoEdu.Client", "Client\InnoEdu.Client.csproj", "{0CEFFCFC-D083-4EED-BC5F-148A954DC954}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnoEdu.Shared", "Shared\InnoEdu.Shared.csproj", "{934C072C-80C9-4049-8EDD-B51799E19DD2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InnoEdu.Shared", "Shared\InnoEdu.Shared.csproj", "{934C072C-80C9-4049-8EDD-B51799E19DD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
