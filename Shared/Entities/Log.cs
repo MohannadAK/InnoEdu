@@ -9,33 +9,21 @@ public static class Log
     private static readonly string lineSeperator = "===========================================================================";
     private static readonly string allocationPath = "App_Data\\Logs";
 
-    private static Dictionary<LogType, int> logTypeIndices = new Dictionary<LogType, int>
-        {
+    private static readonly Dictionary<LogType, int> logTypeIndices = new()
+    {
             { LogType.Information, 1 },
             { LogType.Debug, 1 },
             { LogType.Error, 1 },
             { LogType.Critical, 1 }
         };
 
-    public static async Task WriteInformation(string data)
-    {
-        await WriteLog(LogType.Information, data);
-    }
+    public static async Task WriteInformation(string data) => await WriteLog(LogType.Information, data);
 
-    public static async Task WriteDebug(string data)
-    {
-        await WriteLog(LogType.Debug, data);
-    }
+    public static async Task WriteDebug(string data) => await WriteLog(LogType.Debug, data);
 
-    public static async Task WriteError(string data)
-    {
-        await WriteLog(LogType.Error, data);
-    }
+    public static async Task WriteError(string data) => await WriteLog(LogType.Error, data);
 
-    public static async Task WriteCritical(string data)
-    {
-        await WriteLog(LogType.Critical, data);
-    }
+    public static async Task WriteCritical(string data) => await WriteLog(LogType.Critical, data);
 
     public static async Task<string> ReadAllLogs() => await ReadAllLogTypes();
 
@@ -55,14 +43,14 @@ public static class Log
             Directory.CreateDirectory(logDirectory);
         }
 
-        string logFilePath = $"{logDirectory}\\{logType}Logs_{logTypeIndices[logType]}.txt";
+        string logFilePath = $"{logDirectory}\\{logType}Logs_{logTypeIndices[logType]}.json";
 
         long fileSize = GetFileSize(logFilePath);
 
-        if (fileSize >= 10 * 1024) // 10KB
+        if (fileSize >= 10 * 1024)
         {
             logTypeIndices[logType]++;
-            logFilePath = $"{logDirectory}\\{logType}Logs_{logTypeIndices[logType]}.txt";
+            logFilePath = $"{logDirectory}\\{logType}Logs_{logTypeIndices[logType]}.json";
         }
 
         string content = $"Log date: {DateTime.Now}{Environment.NewLine}Log: {data}{Environment.NewLine}{lineSeperator}{Environment.NewLine}";
@@ -74,7 +62,7 @@ public static class Log
     {
         if (File.Exists(filePath))
         {
-            FileInfo fileInfo = new FileInfo(filePath);
+            FileInfo fileInfo = new(filePath);
             return fileInfo.Length;
         }
         return 0;
@@ -101,7 +89,7 @@ public static class Log
         try
         {
             string logDirectory = $"{allocationPath}\\{subDirectory}";
-            string[] logFiles = Directory.GetFiles(logDirectory, "*Logs*.txt");
+            string[] logFiles = Directory.GetFiles(logDirectory, "*Logs*.json");
 
             StringBuilder allLogContent = new();
 
