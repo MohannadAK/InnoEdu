@@ -8,7 +8,7 @@ public partial class Logs
     {
         try
         {
-            logEntries = await _httpClient.GetFromJsonAsync<List<LogEntry>>("api/logs/alllogs");
+            logEntries = await _httpClient.GetFromJsonAsync<List<LogEntry>>("api/logs/error");
         }
         catch (Exception ex)
         {
