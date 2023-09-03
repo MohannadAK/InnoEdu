@@ -1,0 +1,29 @@
+﻿@* @namespace InnoEdu.Client
+
+@page "/logs"
+
+@inject HttpClient _httpClient
+
+<h3>Logs</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">@nameof(Log.Date)</th>
+            <th scope="col">@nameof(Log.Type)</th>
+            <th scope="col">@nameof(Log.Data)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Log log in logs ?? new())
+        {
+        <tr>
+            <th scope="row">@i++</th>
+            <td>@log.Date</td>
+            <td>@log.Type</td>
+            <td>@log.Data</td>
+        </tr>
+        }
+    </tbody>
+</table> *@

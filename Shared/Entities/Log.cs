@@ -2,7 +2,7 @@
 
 public static class Log
 {
-    public static DateTime LogDateTime { get; set; }
+    public static DateTime Date { get; set; }
     public static LogType Type { get; set; }
     public static string? Data { get; set; }
 
