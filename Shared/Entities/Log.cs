@@ -6,7 +6,8 @@ public static class Log
     public static LogType Type { get; set; }
     public static string? Data { get; set; }
 
-    private static readonly string lineSeperator = "===========================================================================";
+    private static readonly List<LogEntry> allLogEntries = new List<LogEntry>();
+
     private static readonly string allocationPath = "App_Data\\Logs";
 
     private static readonly Dictionary<LogType, int> logTypeIndices = new()
@@ -35,7 +36,7 @@ public static class Log
 
     public static async Task<string> ReadCriticalLogs() => await ReadLogsFromDirectoryAsync("Critical");
 
-    private static async Task WriteLog(LogType logType, string data)
+    public static async Task WriteLog(LogType logType, string data)
     {
         string logDirectory = $"{allocationPath}\\{logType}";
         if (!Directory.Exists(logDirectory))
@@ -53,9 +54,41 @@ public static class Log
             logFilePath = $"{logDirectory}\\{logType}Logs_{logTypeIndices[logType]}.json";
         }
 
-        string content = $"Log date: {DateTime.Now}{Environment.NewLine}Log: {data}{Environment.NewLine}{lineSeperator}{Environment.NewLine}";
+        var logEntry = new LogEntry
+        {
+            Date = DateTime.Now,
+            Type = logType,
+            Data = data
+        };
 
-        await File.AppendAllTextAsync(logFilePath, content);
+        allLogEntries.Add(logEntry);
+
+        List<LogEntry> logEntries;
+
+        if (File.Exists(logFilePath))
+        {
+            string existingData = await File.ReadAllTextAsync(logFilePath);
+            logEntries = JsonSerializer.Deserialize<List<LogEntry>>(existingData) ?? new List<LogEntry>();
+        }
+        else
+        {
+            logEntries = new List<LogEntry>();
+        }
+
+        logEntries.Add(logEntry);
+
+        string jsonContent = JsonSerializer.Serialize(logEntries, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
+        await File.WriteAllTextAsync(logFilePath, jsonContent);
+
+    }
+
+    public static List<LogEntry> GetAllLogs()
+    {
+        return allLogEntries;
     }
 
     private static long GetFileSize(string filePath)
@@ -70,40 +103,107 @@ public static class Log
 
     private static async Task<string> ReadAllLogTypes()
     {
-        string informationLogs = await ReadInformationLogs();
-        string debugLogs = await ReadDebugLogs();
-        string errorLogs = await ReadErrorLogs();
-        string criticalLogs = await ReadCriticalLogs();
+        var informationLogs = await ReadLogsFromDirectoryAsync("Information");
+        var debugLogs = await ReadLogsFromDirectoryAsync("Debug");
+        var errorLogs = await ReadLogsFromDirectoryAsync("Error");
+        var criticalLogs = await ReadLogsFromDirectoryAsync("Critical");
 
-        string allLogs =
-            $"Information Logs:{Environment.NewLine}{informationLogs}{Environment.NewLine}" +
-            $"Debug Logs:{Environment.NewLine}{debugLogs}{Environment.NewLine}" +
-            $"Error Logs:{Environment.NewLine}{errorLogs}{Environment.NewLine}" +
-            $"Critical Logs:{Environment.NewLine}{criticalLogs}{Environment.NewLine}";
+        var logsList = new List<LogEntry>();
 
-        return allLogs;
+        if (!string.IsNullOrEmpty(informationLogs))
+        {
+            var informationLogEntries = JsonSerializer.Deserialize<List<LogEntry>>(informationLogs);
+            logsList.AddRange(informationLogEntries);
+        }
+
+        if (!string.IsNullOrEmpty(debugLogs))
+        {
+            var debugLogEntries = JsonSerializer.Deserialize<List<LogEntry>>(debugLogs);
+            logsList.AddRange(debugLogEntries);
+        }
+
+        if (!string.IsNullOrEmpty(errorLogs))
+        {
+            var errorLogEntries = JsonSerializer.Deserialize<List<LogEntry>>(errorLogs);
+            logsList.AddRange(errorLogEntries);
+        }
+
+        if (!string.IsNullOrEmpty(criticalLogs))
+        {
+            var criticalLogEntries = JsonSerializer.Deserialize<List<LogEntry>>(criticalLogs);
+            logsList.AddRange(criticalLogEntries);
+        }
+
+        return JsonSerializer.Serialize(logsList, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
     }
 
-    private static async Task<string> ReadLogsFromDirectoryAsync(string subDirectory)
+    private static void AppendLogs(StringBuilder allLogs, string logType, string? logs)
+    {
+        if (allLogs.Length > 0)
+        {
+            allLogs.Remove(allLogs.Length - 2, 2);
+            allLogs.AppendLine(",");
+        }
+        allLogs.Append(logType + ": ");
+        if (logs != null)
+        {
+            allLogs.AppendLine(logs);
+        }
+        else
+        {
+            allLogs.AppendLine("No " + logType + " available.");
+        }
+    }
+
+    private static async Task<string?> ReadLogsFromDirectoryAsync(string subDirectory)
     {
         try
         {
             string logDirectory = $"{allocationPath}\\{subDirectory}";
             string[] logFiles = Directory.GetFiles(logDirectory, "*Logs*.json");
 
-            StringBuilder allLogContent = new();
+            if (logFiles.Length == 0)
+            {
+                return "[]";
+            }
+
+            var logContentList = new List<string>();
 
             foreach (string logFile in logFiles)
             {
                 string logContent = await File.ReadAllTextAsync(logFile);
-                allLogContent.Append(logContent);
+                logContentList.Add(logContent);
             }
 
-            return allLogContent.ToString();
+            string allLogContent = "[" + string.Join(",", logContentList) + "]";
+
+            return allLogContent;
         }
         catch (Exception ex)
         {
-            return $"An error occurred: {ex.Message}";
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            return null; 
+        }
+    }
+
+    public static async Task<List<LogEntry>> ReadJsonDataFromFileAsync(string filePath)
+    {
+        try
+        {
+            string jsonData = await File.ReadAllTextAsync(filePath);
+            var logEntries = JsonSerializer.Deserialize<List<LogEntry>>(jsonData);
+
+            ArgumentNullException.ThrowIfNull(logEntries);
+
+            return logEntries;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error reading JSON data: {ex.Message}");
+            return new List<LogEntry>();
         }
     }
 }

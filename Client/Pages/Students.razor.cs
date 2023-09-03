@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Json;
-
-namespace ThirdApp.Client;
+﻿namespace ThirdApp.Client;
 
 public partial class Students
 {
